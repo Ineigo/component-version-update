@@ -11,9 +11,10 @@
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "lib": ["es7"],
+    "typeRoots": ["node_modules/@types"],
   },
   "include": ["./package.json", "./component-version-update.ts", "./core/**/*.ts"],
-  "exclude": ["node_modules", "dist"],
+  "exclude": ["dist"],
   "files": [
     "./component-version-update.d.ts"
   ]
