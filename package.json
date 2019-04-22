@@ -1,0 +1,51 @@
+{
+    "name": "component-version-update",
+    "version": "0.0.1",
+    "description": "",
+    "main": "dist/component-version-update.js",
+    "types": "dist/component-version-update.d.ts",
+    "dependencies": {
+        "chalk": "^2.4.2",
+        "commander": "^2.19.0",
+        "figlet": "^1.2.1",
+        "inquirer": "^6.2.2",
+        "shelljs": "^0.8.3"
+    },
+    "engines": {
+        "node": ">=10.0.0"
+    },
+    "devDependencies": {
+        "@types/figlet": "^1.2.0",
+        "@types/inquirer": "0.0.44",
+        "@types/jest": "^24.0.9",
+        "@types/node": "^11.9.5",
+        "@types/shelljs": "^0.8.3",
+        "jest": "^24.3.1",
+        "ts-jest": "^24.0.0",
+        "typescript": "^3.3.3333"
+    },
+    "scripts": {
+        "test": "jest",
+        "build": "tsc",
+        "start": "npm run build && node ./dist/component-version-update"
+    },
+    "bin": {
+        "cvu": "dist/component-version-update.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Ineigo/component-version-update.git"
+    },
+    "keywords": [
+        "Update",
+        "Version",
+        "CHANGELOG",
+        "package.json"
+    ],
+    "author": "Ineigo Kira",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Ineigo/component-version-update/issues"
+    },
+    "homepage": "https://github.com/Ineigo/component-version-update#readme"
+}
