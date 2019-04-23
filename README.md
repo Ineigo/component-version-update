@@ -8,7 +8,7 @@
     - [ ] commintMessage (string) default null
     - [x] pathsToComponents (array) default empty array
     - [ ] pathToGlobalChangelog (string) default null
-- [ ] Обновлять версию в файлах
-    - [ ] component/package.json
+- [-] Обновлять версию в файлах
+    - [x] component/package.json
     - [ ] component/CHANGELOG.md
     - [ ] ${pathToGlobalChangelog}

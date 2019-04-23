@@ -10,6 +10,7 @@ import fs from 'fs';
 import QuestionModule from './core/QuestionModule.js';
 import { ComponentData, PJSON, Settings } from './core/types.js';
 import { Answers } from 'inquirer';
+import shelljs from 'shelljs';
 
 const version: string = (<any>pj).version;
 const description: string = (<any>pj).description;
@@ -42,6 +43,9 @@ program
 
         // Опрос пользователя
         const answer: Answers = await questionModule.ask();
+
+        // Обновление версии в package.json
+        shelljs.exec(`npm version ${answer.version} --prefix ${answer.component.path}`);
     })
     .parse(process.argv);
 
