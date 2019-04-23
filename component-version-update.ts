@@ -1,84 +1,47 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk';
+import path from 'path';
 import * as figlet from 'figlet';
 import program from 'commander';
 import * as pj from './package.json';
 import fs from 'fs';
 
-import inquirer, { Question } from 'inquirer';
+import QuestionModule from './core/QuestionModule.js';
+import { ComponentData, PJSON, Settings } from './core/types.js';
+import { Answers } from 'inquirer';
 
 const version: string = (<any>pj).version;
 const description: string = (<any>pj).description;
-
-interface PJSON {
-    version: string;
-    description: string;
-    name: string;
-}
-
-interface ComponentData {
-    path: string;
-    data: PJSON;
-}
 
 program
     .version(version)
     .usage('[options] <componentName>')
     .description(description)
-    .action(file => {
+    .action(async () => {
+        if (!fs.existsSync('./package.json')) {
+            return console.log(chalk.gray('Missing package.json'));
+        }
         init();
-        const paths: string[] = ['./temp']; // Как-то получать пути до компонентов
-        const components: ComponentData[] = paths.reduce((comps: ComponentData[], path: string) => {
-            const folders: string[] = fs.readdirSync(path);
 
-            const arr: ComponentData[] = folders
-                .filter(folder => fs.existsSync(path + '/' + folder + '/package.json'))
-                .map(folder => {
-                    const location = path + '/' + folder;
-                    const data: PJSON = JSON.parse(fs.readFileSync(location + '/package.json', 'utf8'));
-                    return {
-                        path: location,
-                        data,
-                    };
-                });
+        // Получение конфигурации
+        const userPackageJson = require(path.resolve('./package.json'));
+        if (!userPackageJson.cvu) {
+            return console.log(chalk.grey('Missing cvu key in package.json'));
+        }
+        const settings: Settings = userPackageJson.cvu;
+        
+        if (!settings.pathsToComponents || !settings.pathsToComponents.length) {
+            return console.log(chalk.grey('pathsToComponents c\'not empty'));
+        }
 
-            if (!arr.length) {
-                return comps;
-            }
-            return comps.concat(arr);
-        }, []);
+        const paths: string[] = settings.pathsToComponents;
 
-        const questions: Question[] = [
-            {
-                name: 'component',
-                type: 'list',
-                message: 'Название компонента?',
-                choices: components.map(c => ({
-                    name: `${c.data.name}@${c.data.version} - ${chalk.bold.grey(c.data.description)}`,
-                    value: c,
-                })),
-            },
-            {
-                name: 'version',
-                type: 'list',
-                message: 'Новая версия?',
-                choices: (answer: inquirer.Answers) => {
-                    const version = answer.component.data.version.split('.');
-                    return version
-                        .map((n: string, i: number) => {
-                            const newVer = Array.from(version);
-                            newVer.splice(i, 1, +n + 1);
-                            return newVer.join('.');
-                        })
-                        .sort();
-                },
-            },
-        ];
+        // Создание вопросника
+        const questionModule: QuestionModule = new QuestionModule(paths);
 
-        inquirer.prompt(questions).then(res => {
-            console.log(res.component.data.name, res.version);
-        });
+        // Опрос пользователя
+        const answer: Answers = await questionModule.ask();
     })
     .parse(process.argv);
 
