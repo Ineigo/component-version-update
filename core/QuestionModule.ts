@@ -47,7 +47,7 @@ export default class QuestionModule {
                     return version
                         .map((n: string, i: number) => {
                             const newVer = Array.from(version);
-                            newVer.splice(i, 1, +n + 1);
+                            newVer.splice(i, 3 - i, ...[+n + 1, 0, 0].splice(0, 3 - i));
                             return newVer.join('.');
                         })
                         .sort();

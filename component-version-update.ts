@@ -45,7 +45,43 @@ program
         const answer: Answers = await questionModule.ask();
 
         // Обновление версии в package.json
-        shelljs.exec(`npm version ${answer.version} --prefix ${answer.component.path}`);
+        // shelljs.exec(`npm version ${answer.version} --prefix ${answer.component.path}`);
+
+        // Обновление версии в component/Changelog.md
+        const chlogPath: string = `${answer.component.path}/CHANGELOG.md`;
+        if (fs.existsSync(chlogPath)) {
+            const md: string = fs.readFileSync(chlogPath, 'utf8');
+            const rows: string[] = md.split(/\r?\n/g);
+            const unrelised: string[] = [];
+            let isUnrelised = false;
+            const result: string[] = rows.reduce((p: string[], line: string, i: number) => {
+                if (isUnrelised) {
+                    const matches = line.match(/^### ([a-z]*)/i);
+                    if (line.match(/^## (.*)/i)) {
+                        isUnrelised = false;
+                    } else if (!matches && line.length) {
+                        const desc = line.replace(/^([^a-zа-яё])*/i, '');
+                        if (desc.length) {
+                            unrelised.push(desc);
+                        }
+                    }
+                }
+                p.push(line);
+                if (line.toLowerCase().includes('unreleased')) {
+                    isUnrelised = true;
+                    p.push('');
+                    p.push('---');
+                    const date: Date = new Date();
+                    p.push(`## [${answer.version}] - ${('0' + date.getDate()).slice(-2)}.${('0' + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`);
+                }
+                return p;
+            }, []);
+
+            fs.writeFileSync(chlogPath, result.join('\r\n'));
+
+            // Обновление Общего changelog.md
+            console.log(unrelised);
+        }
     })
     .parse(process.argv);
 

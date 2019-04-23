@@ -10,5 +10,5 @@
     - [ ] pathToGlobalChangelog (string) default null
 - [-] Обновлять версию в файлах
     - [x] component/package.json
-    - [ ] component/CHANGELOG.md
+    - [x] component/CHANGELOG.md
     - [ ] ${pathToGlobalChangelog}
