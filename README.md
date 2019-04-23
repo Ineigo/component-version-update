@@ -1,5 +1,27 @@
 # component-version-update
 
+## Install
+
+```bash
+npm install -g component-version-update
+```
+
+## Using
+
+package.json:
+```JSON
+{
+    "cvu": {
+        "pathsToComponents": [ "./" ]
+    }
+}
+```
+console:
+```bash
+cd to/project/dir
+cvu
+```
+
 ## TODO:
 
 ### Этап 1
