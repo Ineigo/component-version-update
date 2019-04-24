@@ -14,3 +14,13 @@ export interface Settings {
     onlyUnrealised?: Boolean;
     pathsToComponents: string[]
 }
+
+export interface ChangelogFileData {
+    lines: string[];
+    unrealisedLineNumber: number;
+    unrealised: string[];
+}
+
+export interface ChangelogFiles {
+    [key: string]: ChangelogFileData;
+}

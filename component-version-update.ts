@@ -8,9 +8,10 @@ import * as pj from './package.json';
 import fs from 'fs';
 
 import QuestionModule from './core/QuestionModule.js';
-import { ComponentData, PJSON, Settings } from './core/types.js';
+import { Settings } from './core/types.js';
 import { Answers } from 'inquirer';
 import shelljs from 'shelljs';
+import ChangelogModule from './core/ChangelogModule.js';
 
 const version: string = (<any>pj).version;
 const description: string = (<any>pj).description;
@@ -43,33 +44,19 @@ program
 
         // Создание вопросника
         const questionModule: QuestionModule = new QuestionModule(paths);
+        const changelogModule: ChangelogModule = new ChangelogModule(changelogFileName);
+
+        for (const component of questionModule.components) {
+            if (changelogModule.isset(component.path)) {
+                changelogModule.read(component.path);
+            }
+        }
 
         if (program.onlyUnrealised || settings.onlyUnrealised) {
             console.log(chalk.yellow('Run mode onlyUnrealised'));
-            questionModule.components = questionModule.components.filter(component => {
-                const changelogPath: string = `${component.path}/${changelogFileName}`;
-                if (fs.existsSync(changelogPath)) {
-                    const md: string = fs.readFileSync(changelogPath, 'utf8');
-                    const rows: string[] = md.split(/\r?\n/g);
-                    let isUnrelised = false;
-                    const result: string[] = rows.reduce((unrealized: string[], line: string, i: number) => {
-                        if (isUnrelised) {
-                            const matches = line.match(/^### ([a-z]*)/i);
-                            if (line.match(/^## (.*)/i)) {
-                                isUnrelised = false;
-                            } else if (!matches && line.length) {
-                                const desc = line.replace(/^([^a-zа-яё])*/i, '');
-                                if (desc.length) {
-                                    unrealized.push(desc);
-                                }
-                            }
-                        }
-                        return unrealized;
-                    }, []);
-                    return result.length;
-                }
-                return false;
-            });
+            questionModule.components = questionModule.components.filter(component =>
+                changelogModule.isUnrealized(component.path)
+            );
         }
 
         if (!questionModule.components.length) {
@@ -78,50 +65,21 @@ program
 
         // Опрос пользователя
         const answer: Answers = await questionModule.ask();
+        const pathComponent: string = answer.component.path;
+        if (!changelogModule.isUnrealized(pathComponent)) {
+            return console.log(
+                chalk.red(`Nothing unrealized changes in ${pathComponent}/${changelogModule.changelogFileName}`)
+            );
+        }
 
         // Обновление версии в package.json
-        // shelljs.exec(`npm version ${answer.version} --prefix ${answer.component.path}`);
+        shelljs.exec(`npm version ${answer.version} --prefix ${pathComponent}`);
 
         // Обновление версии в component/Changelog.md
-        const changelogPath: string = `${answer.component.path}/${changelogFileName}`;
-        if (fs.existsSync(changelogPath)) {
-            const md: string = fs.readFileSync(changelogPath, 'utf8');
-            const rows: string[] = md.split(/\r?\n/g);
-            const unrelised: string[] = [];
-            let isUnrelised = false;
-            const result: string[] = rows.reduce((p: string[], line: string, i: number) => {
-                if (isUnrelised) {
-                    const matches = line.match(/^### ([a-z]*)/i);
-                    if (line.match(/^## (.*)/i)) {
-                        isUnrelised = false;
-                    } else if (!matches && line.length) {
-                        const desc = line.replace(/^([^a-zа-яё])*/i, '');
-                        if (desc.length) {
-                            unrelised.push(desc);
-                        }
-                    }
-                }
-                p.push(line);
-                if (line.toLowerCase().includes('unreleased')) {
-                    isUnrelised = true;
-                    p.push('');
-                    p.push('---');
-                    const date: Date = new Date();
-                    p.push(
-                        `## [${answer.version}] - ${('0' + date.getDate()).slice(-2)}.${(
-                            '0' +
-                            (date.getMonth() + 1)
-                        ).slice(-2)}.${date.getFullYear()}`
-                    );
-                }
-                return p;
-            }, []);
+        changelogModule.upVersion(pathComponent, answer.version);
 
-            // fs.writeFileSync(chlogPath, result.join('\r\n'));
-
-            // Обновление Общего changelog.md
-            console.log(unrelised.join(', '));
-        }
+        // Обновление Общего changelog.md
+        // console.log(changelogModule.join(', '));
     })
     .parse(process.argv);
 
