@@ -12,6 +12,8 @@ package.json:
 ```JSON
 {
     "cvu": {
+        "changelogFileName": "CHANGELOG.md",
+        "onlyUnrealised": false,
         "pathsToComponents": [ "./" ]
     }
 }
@@ -19,7 +21,7 @@ package.json:
 console:
 ```bash
 cd to/project/dir
-cvu
+cvu -h
 ```
 
 ## TODO:
@@ -27,6 +29,8 @@ cvu
 ### Этап 1
 
 - [-] Получать настройки из package.json текущей дирректории
+    - [x] changelogFileName (string) default CHANGELOG.md
+    - [x] onlyUnrealised (Boolean) default false
     - [ ] commitMessage (string) default null
     - [x] pathsToComponents (array) default empty array
     - [ ] pathToGlobalChangelog (string) default null

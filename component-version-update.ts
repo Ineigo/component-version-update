@@ -18,6 +18,7 @@ const description: string = (<any>pj).description;
 program
     .version(version)
     .usage('[options] <componentName>')
+    .option('-u, --onlyUnrealised', 'Брать компонеты только при наличии в unrealised из changelog записей', false)
     .description(description)
     .action(async () => {
         if (!fs.existsSync('./package.json')) {
@@ -31,15 +32,49 @@ program
             return console.log(chalk.grey('Missing cvu key in package.json'));
         }
         const settings: Settings = userPackageJson.cvu;
-        
+
+        const changelogFileName: string = settings.changelogFileName || 'CHANGELOG.md';
+
         if (!settings.pathsToComponents || !settings.pathsToComponents.length) {
-            return console.log(chalk.grey('pathsToComponents c\'not empty'));
+            return console.log(chalk.grey("pathsToComponents c'not empty"));
         }
 
         const paths: string[] = settings.pathsToComponents;
 
         // Создание вопросника
         const questionModule: QuestionModule = new QuestionModule(paths);
+
+        if (program.onlyUnrealised || settings.onlyUnrealised) {
+            console.log(chalk.yellow('Run mode onlyUnrealised'));
+            questionModule.components = questionModule.components.filter(component => {
+                const changelogPath: string = `${component.path}/${changelogFileName}`;
+                if (fs.existsSync(changelogPath)) {
+                    const md: string = fs.readFileSync(changelogPath, 'utf8');
+                    const rows: string[] = md.split(/\r?\n/g);
+                    let isUnrelised = false;
+                    const result: string[] = rows.reduce((unrealized: string[], line: string, i: number) => {
+                        if (isUnrelised) {
+                            const matches = line.match(/^### ([a-z]*)/i);
+                            if (line.match(/^## (.*)/i)) {
+                                isUnrelised = false;
+                            } else if (!matches && line.length) {
+                                const desc = line.replace(/^([^a-zа-яё])*/i, '');
+                                if (desc.length) {
+                                    unrealized.push(desc);
+                                }
+                            }
+                        }
+                        return unrealized;
+                    }, []);
+                    return result.length;
+                }
+                return false;
+            });
+        }
+
+        if (!questionModule.components.length) {
+            return console.log(chalk.grey('No components by publish'));
+        }
 
         // Опрос пользователя
         const answer: Answers = await questionModule.ask();
@@ -48,9 +83,9 @@ program
         // shelljs.exec(`npm version ${answer.version} --prefix ${answer.component.path}`);
 
         // Обновление версии в component/Changelog.md
-        const chlogPath: string = `${answer.component.path}/CHANGELOG.md`;
-        if (fs.existsSync(chlogPath)) {
-            const md: string = fs.readFileSync(chlogPath, 'utf8');
+        const changelogPath: string = `${answer.component.path}/${changelogFileName}`;
+        if (fs.existsSync(changelogPath)) {
+            const md: string = fs.readFileSync(changelogPath, 'utf8');
             const rows: string[] = md.split(/\r?\n/g);
             const unrelised: string[] = [];
             let isUnrelised = false;
@@ -72,15 +107,20 @@ program
                     p.push('');
                     p.push('---');
                     const date: Date = new Date();
-                    p.push(`## [${answer.version}] - ${('0' + date.getDate()).slice(-2)}.${('0' + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`);
+                    p.push(
+                        `## [${answer.version}] - ${('0' + date.getDate()).slice(-2)}.${(
+                            '0' +
+                            (date.getMonth() + 1)
+                        ).slice(-2)}.${date.getFullYear()}`
+                    );
                 }
                 return p;
             }, []);
 
-            fs.writeFileSync(chlogPath, result.join('\r\n'));
+            // fs.writeFileSync(chlogPath, result.join('\r\n'));
 
             // Обновление Общего changelog.md
-            console.log(unrelised);
+            console.log(unrelised.join(', '));
         }
     })
     .parse(process.argv);
