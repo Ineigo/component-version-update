@@ -1,18 +1,20 @@
 import fs from 'fs';
-import inquirer, { Question, Answers } from 'inquirer';
+import inquirer, { Question, Answers, PromptModule } from 'inquirer';
 import chalk from 'chalk';
 import { ComponentData, PJSON } from './types';
+
+inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 
 export default class QuestionModule {
     components: ComponentData[];
     constructor(paths: string[]) {
-        this.components = paths.reduce((comps: ComponentData[], path: string) => {
+        this.components = paths.reduce((components: ComponentData[], path: string) => {
             const folders: string[] = fs.readdirSync(path);
 
-            const arr: ComponentData[] = folders
-                .filter(folder => fs.existsSync(path + '/' + folder + '/package.json'))
+            const componentsInFolder: ComponentData[] = folders
+                .filter(folder => fs.existsSync((path === '/' ? '/' : path + '/') + folder + '/package.json'))
                 .map(folder => {
-                    const location = path + '/' + folder;
+                    const location = (path === '/' ? '/' : path + '/') + folder;
                     const data: PJSON = JSON.parse(fs.readFileSync(location + '/package.json', 'utf8'));
                     return {
                         path: location,
@@ -20,23 +22,27 @@ export default class QuestionModule {
                     };
                 });
 
-            if (!arr.length) {
-                return comps;
+            if (!componentsInFolder.length) {
+                return components;
             }
-            return comps.concat(arr);
+            return components.concat(componentsInFolder);
         }, []);
     }
 
-    ask(): Promise<Answers> {
-        const questions: Question[] = [
+    createQuestions(): Question[] {
+        const choices = this.components.map(c => ({
+            name: `${c.data.name}@${c.data.version} - ${chalk.bold.grey(c.data.description)}`,
+            value: c,
+        }));
+
+        return [
             {
                 name: 'component',
-                type: 'list',
+                type: 'autocomplete',
                 message: 'Название компонента?',
-                choices: this.components.map(c => ({
-                    name: `${c.data.name}@${c.data.version} - ${chalk.bold.grey(c.data.description)}`,
-                    value: c,
-                })),
+                source: (answersSoFar: any, input: string) => {
+                    return Promise.resolve(input ? choices.filter(c => c.name.includes(input)) : choices);
+                },
             },
             {
                 name: 'version',
@@ -53,8 +59,11 @@ export default class QuestionModule {
                         .sort();
                 },
             },
-        ];
+        ]
+    }
 
+    ask(): Promise<Answers> {
+        const questions: Question[] = this.createQuestions();
         return inquirer.prompt(questions);
     }
 }

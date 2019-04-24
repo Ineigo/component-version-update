@@ -27,7 +27,7 @@ cvu
 ### Этап 1
 
 - [-] Получать настройки из package.json текущей дирректории
-    - [ ] commintMessage (string) default null
+    - [ ] commitMessage (string) default null
     - [x] pathsToComponents (array) default empty array
     - [ ] pathToGlobalChangelog (string) default null
 - [-] Обновлять версию в файлах
