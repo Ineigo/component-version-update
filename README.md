@@ -21,12 +21,13 @@ package.json:
 console:
 ```bash
 cd to/project/dir
-cvu -h
+cvu -h # Справка
+cvu -u # Искать модули с записями в changelog
 ```
 
 ## TODO:
 
-### Этап 1
+### Этап 1 (v0.0.1)
 
 - [-] Получать настройки из package.json текущей дирректории
     - [x] changelogFileName (string) default CHANGELOG.md
@@ -38,3 +39,12 @@ cvu -h
     - [x] component/package.json
     - [x] component/CHANGELOG.md
     - [ ] ${pathToGlobalChangelog}
+- [ ] Делать commit с изменениями с ${commitMessage} (если указан commitMessage)
+- [ ] Принимать название пакета из опций `-p --package` (не выводить вопрос с пакетом)
+- [ ] Принимать версию пакета из опций `-n --version-number` (не выводить вопрос с пакетом)
+
+### Этап 2 (v0.1.0)
+- [ ] Пакетное обновление
+
+### Этап 3 (v0.2.0)
+- [ ] Обновление зависимостей обновляемого пакета (по ключу `-d --dependency`)
