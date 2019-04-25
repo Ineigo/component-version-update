@@ -1,7 +1,7 @@
 {
     "name": "component-version-update",
     "version": "0.0.1",
-    "description": "",
+    "description": "Обновляет версию пакета в файлах package.json, CHANGELOG.md с формированием коммита с изменениями",
     "main": "dist/component-version-update.js",
     "types": "dist/component-version-update.d.ts",
     "dependencies": {
