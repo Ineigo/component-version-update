@@ -10,9 +10,10 @@ export interface ComponentData {
 }
 
 export interface Settings {
+    pathsToComponents: string[]
     changelogFileName?: string;
     onlyUnrealised?: Boolean;
-    pathsToComponents: string[]
+    verbose?: Boolean;
 }
 
 export interface ChangelogFileData {

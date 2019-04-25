@@ -1,20 +1,24 @@
 import fs from 'fs';
-import inquirer, { Question, Answers, PromptModule } from 'inquirer';
+import path from 'path';
+import inquirer, { Question, Answers } from 'inquirer';
 import chalk from 'chalk';
 import { ComponentData, PJSON } from './types';
+import Logger from './Logger';
 
 inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 
 export default class QuestionModule {
     components: ComponentData[];
-    constructor(paths: string[]) {
-        this.components = paths.reduce((components: ComponentData[], path: string) => {
-            const folders: string[] = fs.readdirSync(path);
+    constructor(paths: string[], logger: Logger) {
+        this.components = paths.reduce((components: ComponentData[], componentPath: string) => {
+            const folders: string[] = fs.readdirSync(componentPath);
 
             const componentsInFolder: ComponentData[] = folders
-                .filter(folder => fs.existsSync((path === '/' ? '/' : path + '/') + folder + '/package.json'))
+                .filter(folder =>
+                    fs.existsSync((componentPath === '/' ? '/' : componentPath + '/') + folder + '/package.json')
+                )
                 .map(folder => {
-                    const location = (path === '/' ? '/' : path + '/') + folder;
+                    const location = (componentPath === '/' ? '/' : componentPath + '/') + folder;
                     const data: PJSON = JSON.parse(fs.readFileSync(location + '/package.json', 'utf8'));
                     return {
                         path: location,
@@ -23,10 +27,19 @@ export default class QuestionModule {
                 });
 
             if (!componentsInFolder.length) {
+                logger.warn(`Not found components in ${path.resolve(componentPath)}`);
                 return components;
             }
+            logger.info(
+                `Found ` +
+                    chalk.bold(`${componentsInFolder.length} `) +
+                    chalk.bold(`(${componentPath})`) +
+                    ` components in`,
+                path.resolve(componentPath)
+            );
             return components.concat(componentsInFolder);
         }, []);
+        logger.info('Total: ' + chalk.bold.white(`${this.components.length}`) + ' found components');
     }
 
     createQuestions(): Question[] {
@@ -59,7 +72,7 @@ export default class QuestionModule {
                         .sort();
                 },
             },
-        ]
+        ];
     }
 
     ask(): Promise<Answers> {

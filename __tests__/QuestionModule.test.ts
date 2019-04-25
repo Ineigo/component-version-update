@@ -2,6 +2,7 @@ import { Question } from 'inquirer';
 import QuestionModule from '../core/QuestionModule';
 import { PJSON, ComponentData } from '../core/types';
 import fs from 'fs';
+import Logger from '../core/Logger';
 
 jest.mock('inquirer');
 jest.mock('fs', () => new (require('metro-memory-fs'))());
@@ -25,7 +26,7 @@ describe('QuestionModule', () => {
 
     it('Check grabbing components', async () => {
         const paths: string[] = ['/folder1', '/folder2'];
-        const questionModule: QuestionModule = new QuestionModule(paths);
+        const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
         // inquirer.prompt = jest.fn().mockResolvedValue({ component: 'some@example.com' });
         const expectedComponent: ComponentData[] = [
             { path: '/folder1/temp1', data: components[0] },
@@ -36,7 +37,7 @@ describe('QuestionModule', () => {
 
     it('Check generate list by render', async () => {
         const paths: string[] = ['/folder1', '/folder2'];
-        const questionModule: QuestionModule = new QuestionModule(paths);
+        const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
         // inquirer.prompt = jest.fn().mockResolvedValue({ component: 'some@example.com' });
         const questions: any = questionModule.createQuestions();
         const expectedComponent: Object[] = [

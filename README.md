@@ -39,6 +39,8 @@ cvu -u # Искать модули с записями в changelog
     - [x] component/package.json
     - [x] component/CHANGELOG.md
     - [ ] ${pathToGlobalChangelog}
+- [x] Стандартизировать формат вывода логов
+- [x] Добивить режим отладки `--verbose`
 - [ ] Делать commit с изменениями с ${commitMessage} (если указан commitMessage)
 - [ ] Принимать название пакета из опций `-p --package` (не выводить вопрос с пакетом)
 - [ ] Принимать версию пакета из опций `-n --version-number` (не выводить вопрос с пакетом)
