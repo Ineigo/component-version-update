@@ -16,7 +16,8 @@ package.json:
         "onlyUnrealised": false,
         "pathsToComponents": [ "./" ],
         "pathToGlobalChangelog": "CHANGELOG.md",
-        "globalChangelogFormat": "-   **[%name%:%version%]**: %msg%"
+        "globalChangelogFormat": "-   **[%name%:%version%]**: %msg%",
+        "commitMessage": "[%name%:%version%]: Publish"
     }
 }
 ```
@@ -34,7 +35,7 @@ cvu -u # Искать модули с записями в changelog
 - [-] Получать настройки из package.json текущей дирректории
     - [x] changelogFileName (string) default CHANGELOG.md
     - [x] onlyUnrealised (Boolean) default false
-    - [ ] commitMessage (string) default null
+    - [x] commitMessage (string) default null
     - [x] pathsToComponents (array) default empty array
     - [x] pathToGlobalChangelog (string) default null
     - [x] globalChangelogFormat (string) default null
@@ -45,7 +46,7 @@ cvu -u # Искать модули с записями в changelog
 - [x] Стандартизировать формат вывода логов
 - [x] Добивить режим отладки `--verbose`
 - [ ] Пропаботать вставку в `unrealised` глобальный changelog
-- [ ] Делать commit с изменениями с ${commitMessage} (если указан commitMessage)
+- [x] Делать commit с изменениями с ${commitMessage} (если указан commitMessage)
 - [ ] Принимать название пакета из опций `-p --package` (не выводить вопрос с пакетом)
 - [ ] Принимать версию пакета из опций `-n --version-number` (не выводить вопрос с пакетом)
 

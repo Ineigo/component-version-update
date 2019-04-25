@@ -96,6 +96,15 @@ program
         if (changelogModule.upVersion(pathComponent, answer.version)) {
             answer.component.data.version = answer.version;
             changelogModule.writeGlobalChangelog(pathComponent, answer.component);
+            if (settings.commitMessage) {
+                const message: string = settings.commitMessage
+                    .replace(/%name%/g, answer.component.data.name)
+                    .replace(/%version%/g, answer.component.data.version);
+                shelljs.exec(
+                    `git add ${pathComponent} ${settings.pathToGlobalChangelog} && git commit -m "${message}"`
+                );
+                logger.info(`Commited "${message}"`);
+            }
         }
 
         // Обновление Общего changelog.md

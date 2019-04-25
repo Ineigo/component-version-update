@@ -16,6 +16,7 @@ export interface Settings {
     verbose?: Boolean;
     pathToGlobalChangelog?: string;
     globalChangelogFormat?: string;
+    commitMessage?: string;
 }
 
 export interface ChangelogFileData {

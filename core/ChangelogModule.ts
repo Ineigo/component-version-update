@@ -1,4 +1,5 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { ChangelogFiles, ChangelogFileData, ComponentData } from './types';
 import Logger from './Logger';
@@ -95,7 +96,7 @@ export default class ChangelogModule {
         const headLine: string = `## [${version}] - ${dateString}`;
         changelog.lines.splice(changelog.unrealisedLineNumber + 1, 0, '', '---', headLine);
         const lines: string[] = changelog.lines;
-        fs.writeFileSync(`${path}/${this.changelogFileName}`, lines.join('\r\n'));
+        fs.writeFileSync(`${path}/${this.changelogFileName}`, lines.join(os.EOL), 'utf8');
         return true;
     }
 
@@ -117,6 +118,6 @@ export default class ChangelogModule {
             .replace(/%msg%/g, changelog.unrealised.join(', '));
         this.globalChangelog.lines.splice(index + 2, 0, line);
         const globalLines: string[] = this.globalChangelog.lines;
-        fs.writeFileSync(`${this.pathToGlobalChangelog}`, globalLines.join('\r\n'));
+        fs.writeFileSync(`${this.pathToGlobalChangelog}`, globalLines.join(os.EOL), 'utf8');
     }
 }
