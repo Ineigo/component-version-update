@@ -18,7 +18,11 @@ export default class ChangelogModule {
     globalChangelog?: ChangelogFileData;
 
     constructor(
-        { changelogFileName, pathToGlobalChangelog, globalChangelogFormat = '-   [%name%@%version%]: %msg%' }: ChangelogArguments,
+        {
+            changelogFileName,
+            pathToGlobalChangelog,
+            globalChangelogFormat = '-   [%name%@%version%]: %msg%',
+        }: ChangelogArguments,
         logger: Logger
     ) {
         this.changelogFileName = changelogFileName || this.changelogFileName;
@@ -89,15 +93,18 @@ export default class ChangelogModule {
             return false;
         }
 
-        const date: Date = new Date();
-        const day: string = `0${date.getDate()}`.slice(-2);
-        const month: string = `0${date.getMonth() + 1}`.slice(-2);
-        const dateString: string = `${day}.${month}.${date.getFullYear()}`;
-        const headLine: string = `## [${version}] - ${dateString}`;
+        const headLine: string = `## [${version}] - ${this.getDateString()}`;
         changelog.lines.splice(changelog.unrealisedLineNumber + 1, 0, '', '---', headLine);
         const lines: string[] = changelog.lines;
         fs.writeFileSync(`${path}/${this.changelogFileName}`, lines.join(os.EOL), 'utf8');
         return true;
+    }
+
+    getDateString(): string {
+        const date: Date = new Date();
+        const day: string = `0${date.getDate()}`.slice(-2);
+        const month: string = `0${date.getMonth() + 1}`.slice(-2);
+        return `${date.getFullYear()}-${month}-${day}`;
     }
 
     writeGlobalChangelog(path: string, component: ComponentData) {
@@ -111,13 +118,40 @@ export default class ChangelogModule {
             return false;
         }
 
-        const index = this.globalChangelog.lines.indexOf('### Changed');
+        const changedMark: string = '### Changed';
+
+        let index: number = this.indexOfMarkInUnrelized(this.globalChangelog, changedMark);
+
+        if (index < 0) {
+            this.globalChangelog.lines.splice(this.globalChangelog.unrealisedLineNumber + 1, 0, '', changedMark);
+            index = this.globalChangelog.unrealisedLineNumber + 2;
+        } else {
+            index++;
+        }
+
         const line: string = this.globalChangelogFormat
             .replace(/%name%/g, component.data.name)
             .replace(/%version%/g, component.data.version)
+            .replace(/%data%/g, this.getDateString())
+            .replace(/%link%/g, `/${path}/${this.changelogFileName}`)
             .replace(/%msg%/g, changelog.unrealised.join(', '));
-        this.globalChangelog.lines.splice(index + 2, 0, line);
+            
+        this.globalChangelog.lines.splice(index + 1, 0, line);
         const globalLines: string[] = this.globalChangelog.lines;
         fs.writeFileSync(`${this.pathToGlobalChangelog}`, globalLines.join(os.EOL), 'utf8');
+    }
+
+    indexOfMarkInUnrelized(changelog: ChangelogFileData, mark: string): number {
+        for (let i = changelog.unrealisedLineNumber + 1; changelog.lines.length > i; i++) {
+            const row: string = changelog.lines[i];
+            if (row.match(/^## (.*)/i)) {
+                return -1;
+            }
+            if (row.includes(mark)) {
+                return i;
+            }
+
+        }
+        return -1;
     }
 }
