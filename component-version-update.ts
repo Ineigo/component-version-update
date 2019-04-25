@@ -53,7 +53,14 @@ program
 
         // Создание вопросника
         const questionModule: QuestionModule = new QuestionModule(paths, logger);
-        const changelogModule: ChangelogModule = new ChangelogModule(changelogFileName);
+        const changelogModule: ChangelogModule = new ChangelogModule(
+            {
+                changelogFileName,
+                pathToGlobalChangelog: settings.pathToGlobalChangelog,
+                globalChangelogFormat: settings.globalChangelogFormat,
+            },
+            logger
+        );
 
         for (const component of questionModule.components) {
             if (changelogModule.isset(component.path)) {
@@ -86,7 +93,10 @@ program
         shelljs.exec(`npm version ${answer.version} --prefix ${pathComponent}`);
 
         // Обновление версии в component/Changelog.md
-        changelogModule.upVersion(pathComponent, answer.version);
+        if (changelogModule.upVersion(pathComponent, answer.version)) {
+            answer.component.data.version = answer.version;
+            changelogModule.writeGlobalChangelog(pathComponent, answer.component);
+        }
 
         // Обновление Общего changelog.md
         logger.log(changelogModule.get(pathComponent).unrealised.join(', '));
@@ -94,10 +104,10 @@ program
     .parse(process.argv);
 
 function logMods(settings: Settings, logger: Logger): void {
-    logger.info('Run mode verbose');
+    logger.info(chalk.bold.yellow('Run with mode verbose'));
 
     if (settings.onlyUnrealised) {
-        logger.info(chalk.bold.yellow('Run mode onlyUnrealised'));
+        logger.info(chalk.bold.yellow('Run with mode onlyUnrealised'));
     }
 
     console.log();

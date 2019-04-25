@@ -14,6 +14,8 @@ export interface Settings {
     changelogFileName?: string;
     onlyUnrealised?: Boolean;
     verbose?: Boolean;
+    pathToGlobalChangelog?: string;
+    globalChangelogFormat?: string;
 }
 
 export interface ChangelogFileData {

@@ -34,13 +34,15 @@ cvu -u # Искать модули с записями в changelog
     - [x] onlyUnrealised (Boolean) default false
     - [ ] commitMessage (string) default null
     - [x] pathsToComponents (array) default empty array
-    - [ ] pathToGlobalChangelog (string) default null
-- [-] Обновлять версию в файлах
+    - [x] pathToGlobalChangelog (string) default null
+    - [x] globalChangelogFormat (string) default null
+- [x] Обновлять версию в файлах
     - [x] component/package.json
     - [x] component/CHANGELOG.md
-    - [ ] ${pathToGlobalChangelog}
+    - [x] ${pathToGlobalChangelog}
 - [x] Стандартизировать формат вывода логов
 - [x] Добивить режим отладки `--verbose`
+- [ ] Пропаботать вставку в `unrealised` глобальный changelog
 - [ ] Делать commit с изменениями с ${commitMessage} (если указан commitMessage)
 - [ ] Принимать название пакета из опций `-p --package` (не выводить вопрос с пакетом)
 - [ ] Принимать версию пакета из опций `-n --version-number` (не выводить вопрос с пакетом)
