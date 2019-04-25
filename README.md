@@ -14,7 +14,9 @@ package.json:
     "cvu": {
         "changelogFileName": "CHANGELOG.md",
         "onlyUnrealised": false,
-        "pathsToComponents": [ "./" ]
+        "pathsToComponents": [ "./" ],
+        "pathToGlobalChangelog": "CHANGELOG.md",
+        "globalChangelogFormat": "-   **[%name%:%version%]**: %msg%"
     }
 }
 ```
