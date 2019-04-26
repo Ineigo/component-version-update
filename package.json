@@ -1,6 +1,6 @@
 {
     "name": "component-version-update",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Обновляет версию пакета в файлах package.json, CHANGELOG.md с формированием коммита с изменениями",
     "main": "dist/component-version-update.js",
     "types": "dist/component-version-update.d.ts",
@@ -9,6 +9,7 @@
         "commander": "^2.19.0",
         "figlet": "^1.2.1",
         "inquirer": "^6.3.1",
+        "inquirer-autocomplete-prompt": "^1.0.1",
         "shelljs": "^0.8.3"
     },
     "engines": {
@@ -20,7 +21,6 @@
         "@types/jest": "^24.0.11",
         "@types/node": "^11.9.5",
         "@types/shelljs": "^0.8.3",
-        "inquirer-autocomplete-prompt": "^1.0.1",
         "jest": "^24.7.1",
         "metro-memory-fs": "^0.53.1",
         "ts-jest": "^24.0.2",
