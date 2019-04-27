@@ -53,7 +53,7 @@ export default class QuestionModule {
                 name: 'component',
                 type: 'autocomplete',
                 message: 'Название компонента?',
-                source: (answersSoFar: any, input: string) => {
+                source: (answer: Answers, input: string) => {
                     return Promise.resolve(input ? choices.filter(c => c.name.includes(input)) : choices);
                 },
             },

@@ -16,10 +16,12 @@ jest.mock('chalk', () => {
 jest.mock('fs', () => new (require('metro-memory-fs'))());
 
 describe('QuestionModule', () => {
+    const paths: string[] = ['/folder1', '/folder2'];
     const components: PJSON[] = [
         { name: '@comp/temp1', version: '1.1.1', description: 'sadsadad' },
         { name: '@comp/temp2', version: '2.3.8', description: '00000000' },
     ];
+    
 
     beforeEach(() => {
         require('fs').reset();
@@ -32,18 +34,21 @@ describe('QuestionModule', () => {
     });
 
     it('Check grabbing components', async () => {
-        const paths: string[] = ['/folder1', '/folder2'];
-        const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
-        // inquirer.prompt = jest.fn().mockResolvedValue({ component: 'some@example.com' });
+        // Arrange
         const expectedComponent: ComponentData[] = [
             { path: '/folder1/temp1', data: components[0] },
             { path: '/folder2/temp2', data: components[1] },
         ];
+
+        // Act
+        const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
+
+        // Assert
         expect(questionModule.components).toEqual(expectedComponent);
     });
 
     it('Check generate list by render', async () => {
-        const paths: string[] = ['/folder1', '/folder2'];
+        // Arrange
         const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
         const questions: any = questionModule.createQuestions();
         const expectedComponent: any = [
@@ -56,7 +61,24 @@ describe('QuestionModule', () => {
                 value: questionModule.components[1],
             },
         ];
+
+        // Act
         const result = await questions[0].source(null, '');
+        
+        // Assert
         expect(result).toEqual(expectedComponent);
+    });
+
+    it('Check generate version list by render', () => {
+        // Arrange
+        const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
+        const questions: any = questionModule.createQuestions();
+        const expectedVersion: string[] = ['2.3.9', '2.4.0', '3.0.0'];
+
+        // Act
+        const result = questions[1].choices({ component: questionModule.components[1] });
+
+        // Assert
+        expect(result).toEqual(expectedVersion);
     });
 });
