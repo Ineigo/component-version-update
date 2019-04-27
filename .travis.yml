@@ -4,8 +4,28 @@ node_js:
     - "6"
     - "8"
     - "10"
-    - "11"
+    - "12"
 
-script:
-    - "npm test"
+script: 
+    - echo "Running tests against $(node -v) ..."
+    - npm test
 
+stages: 
+    - name: test
+      if: tag IS blank
+    - name: npm release
+      if: tag IS NOT blank
+
+jobs:
+    include:
+        - stage: npm release
+          script: 
+            - npm test
+            - npm run build
+          node_js: "12"
+          deploy: &npm
+            provider: npm
+            email: $EMAIL
+            api_key: $NPM_AUTH_TOCKEN
+            on:
+                tags: true
