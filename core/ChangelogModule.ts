@@ -1,14 +1,8 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { ChangelogFiles, ChangelogFileData, ComponentData } from './types';
+import { ChangelogFiles, ChangelogFileData, ComponentData, ChangelogArguments } from './types';
 import Logger from './Logger';
-
-interface ChangelogArguments {
-    changelogFileName: string;
-    pathToGlobalChangelog?: string;
-    globalChangelogFormat?: string;
-}
 
 export default class ChangelogModule {
     changelogFileName: string = 'CHANGELOG.md';
@@ -39,8 +33,8 @@ export default class ChangelogModule {
         return fs.existsSync(`${path}/${this.changelogFileName}`);
     }
 
-    parse(path: string): ChangelogFileData {
-        const md: string = fs.readFileSync(path, 'utf8');
+    parse(fullPathToFile: string): ChangelogFileData {
+        const md: string = fs.readFileSync(fullPathToFile, 'utf8');
         const rows: string[] = md.split(/\r?\n/g);
         return { lines: rows, unrealised: [], unrealisedLineNumber: 0 };
     }

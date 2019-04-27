@@ -69,6 +69,24 @@ describe('QuestionModule', () => {
         expect(result).toEqual(expectedComponent);
     });
 
+    it('Check filter list by render', async () => {
+        // Arrange
+        const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
+        const questions: any = questionModule.createQuestions();
+        const expectedComponent: any = [
+            {
+                name: `${components[0].name}@${components[0].version} - ${components[0].description}`,
+                value: questionModule.components[0],
+            },
+        ];
+
+        // Act
+        const result = await questions[0].source(null, 'temp1');
+        
+        // Assert
+        expect(result).toEqual(expectedComponent);
+    });
+
     it('Check generate version list by render', () => {
         // Arrange
         const questionModule: QuestionModule = new QuestionModule(paths, new Logger());

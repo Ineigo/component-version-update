@@ -28,3 +28,9 @@ export interface ChangelogFileData {
 export interface ChangelogFiles {
     [key: string]: ChangelogFileData;
 }
+
+export interface ChangelogArguments {
+    changelogFileName: string;
+    pathToGlobalChangelog?: string;
+    globalChangelogFormat?: string;
+}
