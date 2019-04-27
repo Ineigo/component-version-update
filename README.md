@@ -30,24 +30,6 @@ cvu -u # Искать модули с записями в changelog
 
 ## TODO:
 
-### Этап 1 (v0.0.1)
-
-- [x] Получать настройки из package.json текущей дирректории
-    - [x] changelogFileName (string) default CHANGELOG.md
-    - [x] onlyUnrealised (Boolean) default false
-    - [x] commitMessage (string) default null
-    - [x] pathsToComponents (array) default empty array
-    - [x] pathToGlobalChangelog (string) default null
-    - [x] globalChangelogFormat (string) default null
-- [x] Обновлять версию в файлах
-    - [x] component/package.json
-    - [x] component/CHANGELOG.md
-    - [x] ${pathToGlobalChangelog}
-- [x] Стандартизировать формат вывода логов
-- [x] Добивить режим отладки `--verbose`
-- [x] Пропаботать вставку в `unrealised` глобальный changelog
-- [x] Делать commit с изменениями с ${commitMessage} (если указан commitMessage)
-
 ### Этап 2 (v0.1.0)
 - [ ] Сделать якоря при переходе от глобального changelog в changelog компонета
 - [ ] Принимать название пакета из опций `-p --package` (не выводить вопрос с пакетом)

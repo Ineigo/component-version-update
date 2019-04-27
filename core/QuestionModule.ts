@@ -43,9 +43,9 @@ export default class QuestionModule {
     }
 
     createQuestions(): Question[] {
-        const choices = this.components.map(c => ({
-            name: `${c.data.name}@${c.data.version} - ${chalk.bold.grey(c.data.description)}`,
-            value: c,
+        const choices = this.components.map(component => ({
+            name: `${component.data.name}@${component.data.version} - ${chalk.bold.grey(component.data.description)}`,
+            value: component,
         }));
 
         return [

@@ -1,12 +1,19 @@
-import { Question } from 'inquirer';
 import QuestionModule from '../core/QuestionModule';
 import { PJSON, ComponentData } from '../core/types';
 import fs from 'fs';
 import Logger from '../core/Logger';
 
-jest.mock('inquirer');
+jest.mock('chalk', () => {
+    const bold = (v: string) => v;
+    bold.grey = bold;
+    bold.white = bold;
+    return {
+        default: { grey: bold, white: bold, bold },
+        grey: bold, white: bold, bold,
+    };
+});
+
 jest.mock('fs', () => new (require('metro-memory-fs'))());
-// const inquirer = require('inquirer');
 
 describe('QuestionModule', () => {
     const components: PJSON[] = [
@@ -38,9 +45,8 @@ describe('QuestionModule', () => {
     it('Check generate list by render', async () => {
         const paths: string[] = ['/folder1', '/folder2'];
         const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
-        // inquirer.prompt = jest.fn().mockResolvedValue({ component: 'some@example.com' });
         const questions: any = questionModule.createQuestions();
-        const expectedComponent: Object[] = [
+        const expectedComponent: any = [
             {
                 name: `${components[0].name}@${components[0].version} - ${components[0].description}`,
                 value: questionModule.components[0],
@@ -50,6 +56,7 @@ describe('QuestionModule', () => {
                 value: questionModule.components[1],
             },
         ];
-        expect(questions[0].source(null, '')).resolves.toEqual(expectedComponent);
+        const result = await questions[0].source(null, '');
+        expect(result).toEqual(expectedComponent);
     });
 });
