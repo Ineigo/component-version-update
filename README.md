@@ -1,5 +1,7 @@
 # component-version-update
 
+![build](https://travis-ci.com/Ineigo/component-version-update.svg?branch=master) ![node](https://img.shields.io/node/v/component-version-update.svg) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ineigo/component-version-update.svg) ![GitHub last commit](https://img.shields.io/github/last-commit/ineigo/component-version-update.svg)
+
 ## Install
 
 ```bash
