@@ -30,7 +30,7 @@ export interface ChangelogFiles {
 }
 
 export interface ChangelogArguments {
-    changelogFileName: string;
+    changelogFileName?: string;
     pathToGlobalChangelog?: string;
     globalChangelogFormat?: string;
 }

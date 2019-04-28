@@ -66,7 +66,7 @@ export default class ChangelogModule {
                 if (line.match(/^## (.*)/i)) {
                     isUnrelised = false;
                 } else if (!matches && line.length) {
-                    const desc = line.replace(/^([^a-zа-яё])*/i, '');
+                    const desc = line.replace(/^([^1-9\[\]a-zа-яё])*/i, '');
                     if (desc.length) {
                         changelog.unrealised.push(desc);
                     }
