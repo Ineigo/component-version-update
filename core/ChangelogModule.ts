@@ -15,7 +15,7 @@ export default class ChangelogModule {
         {
             changelogFileName,
             pathToGlobalChangelog,
-            globalChangelogFormat = '-   [%name%@%version%]: %msg%',
+            globalChangelogFormat = '-   [%name%@%version%](%link%): %msg%',
         }: ChangelogArguments,
         logger: Logger
     ) {
@@ -127,13 +127,17 @@ export default class ChangelogModule {
             .replace(/%name%/g, component.data.name)
             .replace(/%version%/g, component.data.version)
             .replace(/%date%/g, this.getDateString())
-            .replace(/%link%/g, `/${path}/${this.changelogFileName}`)
+            .replace(/%link%/g, this.getLinkByChangelog(path, component.data.version))
             .replace(/%msg%/g, changelog.unrealised.join(', '));
-            
+
         this.globalChangelog.lines.splice(index + 1, 0, line);
         const globalLines: string[] = this.globalChangelog.lines;
         fs.writeFileSync(`${this.pathToGlobalChangelog}`, globalLines.join(os.EOL), 'utf8');
         return true;
+    }
+
+    getLinkByChangelog(path: string, version: string): string {
+        return `/${path.replace(/^\//, '')}/${this.changelogFileName}#${version.replace(/\./g, '')}-${this.getDateString()}`;
     }
 
     indexOfMarkInUnrelized(changelog: ChangelogFileData, mark: string): number {
@@ -145,7 +149,6 @@ export default class ChangelogModule {
             if (row.includes(mark)) {
                 return i;
             }
-
         }
         return -1;
     }

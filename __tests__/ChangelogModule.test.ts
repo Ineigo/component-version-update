@@ -35,6 +35,17 @@ class DateMock extends Date {
 
 jest.mock('fs', () => new (require('metro-memory-fs'))());
 
+it('getLinkByChangelog', () => {
+    // Arrange
+    const changelogModule: ChangelogModule = new ChangelogModule({}, new Logger());
+
+    // Act
+    const result: string = changelogModule.getLinkByChangelog('/folder1/temp1', '1.1.2');
+
+    // Assert
+    expect(result).toBe('/folder1/temp1/CHANGELOG.md#112-2017-06-13');
+});
+
 describe('ChangelogModule', () => {
     beforeEach(() => {
         require('fs').reset();
@@ -65,7 +76,7 @@ describe('ChangelogModule', () => {
                 name: 'comp1',
             },
         };
-        
+
         it('no global changelog', () => {
             // Arrange
             const path: string = '/folder1/temp1';
