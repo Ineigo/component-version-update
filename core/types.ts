@@ -12,7 +12,7 @@ export interface ComponentData {
 export interface Settings {
     pathsToComponents: string[]
     changelogFileName?: string;
-    onlyUnrealised?: Boolean;
+    onlyUnreleased?: Boolean;
     verbose?: Boolean;
     pathToGlobalChangelog?: string;
     globalChangelogFormat?: string;
@@ -21,8 +21,8 @@ export interface Settings {
 
 export interface ChangelogFileData {
     lines: string[];
-    unrealisedLineNumber: number;
-    unrealised: string[];
+    unreleasedLineNumber: number;
+    unreleased: string[];
 }
 
 export interface ChangelogFiles {

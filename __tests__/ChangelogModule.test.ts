@@ -3,12 +3,12 @@ import { ChangelogFileData, ChangelogFiles, ComponentData } from '../core/types'
 import fs from 'fs';
 import Logger from '../core/Logger';
 import {
-    changelogFileEmptyUnrelized,
-    changelogFileNoUnrelized,
-    changelogDataEmptyUnrelized,
-    changelogDataNoUnrelized,
-    changelogFileUnrelized,
-    changelogDataUnrelized,
+    changelogFileEmptyUnreleased,
+    changelogFileNoUnreleased,
+    changelogDataEmptyUnreleased,
+    changelogDataNoUnreleased,
+    changelogFileUnreleased,
+    changelogDataUnreleased,
     changelogLinesUppedVersion,
 } from './changelogModuleDataSet';
 
@@ -51,9 +51,9 @@ describe('ChangelogModule', () => {
         require('fs').reset();
         fs.mkdirSync('/folder1');
         fs.mkdirSync('/folder1/temp1');
-        fs.writeFileSync('/folder1/temp1/CHANGELOG.md', changelogFileEmptyUnrelized, 'utf8');
-        fs.writeFileSync('/folder1/temp1/CHANGELOG_NO_UNRELEASED.md', changelogFileNoUnrelized, 'utf8');
-        fs.writeFileSync('/folder1/temp1/CHANGELOG_UNRELEASED.md', changelogFileUnrelized, 'utf8');
+        fs.writeFileSync('/folder1/temp1/CHANGELOG.md', changelogFileEmptyUnreleased, 'utf8');
+        fs.writeFileSync('/folder1/temp1/CHANGELOG_NO_UNRELEASED.md', changelogFileNoUnreleased, 'utf8');
+        fs.writeFileSync('/folder1/temp1/CHANGELOG_UNRELEASED.md', changelogFileUnreleased, 'utf8');
         fs.writeFileSync(
             '/CHANGELOG.md',
             `# Changelog
@@ -132,8 +132,8 @@ describe('ChangelogModule', () => {
                     '- [comp1:1.1.2] - 2017-06-13',
                     '- [comp1:1.1.1] - 2016-07-10',
                 ],
-                unrealised: ['[comp1:1.1.1] - 2016-07-10'],
-                unrealisedLineNumber: 2,
+                unreleased: ['[comp1:1.1.1] - 2016-07-10'],
+                unreleasedLineNumber: 2,
             });
         });
     });
@@ -172,7 +172,7 @@ describe('ChangelogModule', () => {
         });
     });
 
-    describe('indexOfMarkInUnrelized', () => {
+    describe('indexOfMarkInUnreleased', () => {
         it('isset mark', () => {
             // Arrange
             const path: string = '/folder1/temp1';
@@ -184,7 +184,7 @@ describe('ChangelogModule', () => {
             const mark: string = '### Fixed';
 
             // Act
-            const result: number = changelogModule.indexOfMarkInUnrelized(data, mark);
+            const result: number = changelogModule.indexOfMarkInUnreleased(data, mark);
 
             // Assert
             expect(result).toBe(data.lines.indexOf(mark));
@@ -201,14 +201,14 @@ describe('ChangelogModule', () => {
             const mark: string = '### Fixed';
 
             // Act
-            const result: number = changelogModule.indexOfMarkInUnrelized(data, mark);
+            const result: number = changelogModule.indexOfMarkInUnreleased(data, mark);
 
             // Assert
             expect(result).toBe(-1);
         });
     });
 
-    describe('isUnrealized', () => {
+    describe('isUnreleased', () => {
         it('positive', () => {
             // Arrange
             const path: string = '/folder1/temp1';
@@ -219,7 +219,7 @@ describe('ChangelogModule', () => {
             changelogModule.read(path);
 
             // Act
-            const result: Boolean = changelogModule.isUnrealized(path);
+            const result: Boolean = changelogModule.isUnreleased(path);
 
             // Assert
             expect(result).toBeTruthy();
@@ -232,7 +232,7 @@ describe('ChangelogModule', () => {
             changelogModule.read(path);
 
             // Act
-            const result: Boolean = changelogModule.isUnrealized(path);
+            const result: Boolean = changelogModule.isUnreleased(path);
 
             // Assert
             expect(result).toBeFalsy();
@@ -244,7 +244,7 @@ describe('ChangelogModule', () => {
             // Arrange
             const path: string = '/folder1/temp1';
             const changelogModule: ChangelogModule = new ChangelogModule({}, new Logger());
-            const expected: ChangelogFileData = changelogDataEmptyUnrelized;
+            const expected: ChangelogFileData = changelogDataEmptyUnreleased;
             const expectedFiles: ChangelogFiles = { [path]: expected };
 
             // Act
@@ -263,7 +263,7 @@ describe('ChangelogModule', () => {
                 { changelogFileName: 'CHANGELOG_NO_UNRELEASED.md' },
                 new Logger()
             );
-            const expected: ChangelogFileData = changelogDataNoUnrelized;
+            const expected: ChangelogFileData = changelogDataNoUnreleased;
             const expectedFiles: ChangelogFiles = { [path]: expected };
 
             // Act
@@ -282,7 +282,7 @@ describe('ChangelogModule', () => {
                 { changelogFileName: 'CHANGELOG_UNRELEASED.md' },
                 new Logger()
             );
-            const expected: ChangelogFileData = changelogDataUnrelized;
+            const expected: ChangelogFileData = changelogDataUnreleased;
             const expectedFiles: ChangelogFiles = { [path]: expected };
 
             // Act
@@ -300,9 +300,9 @@ describe('ChangelogModule', () => {
         const path: string = '/folder1/temp1';
         const changelogModule: ChangelogModule = new ChangelogModule({}, new Logger());
         const expected: ChangelogFileData = {
-            lines: changelogDataEmptyUnrelized.lines,
-            unrealised: [],
-            unrealisedLineNumber: 0,
+            lines: changelogDataEmptyUnreleased.lines,
+            unreleased: [],
+            unreleasedLineNumber: 0,
         };
         const expectedFiles: ChangelogFiles = { [path]: expected };
 
@@ -319,9 +319,9 @@ describe('ChangelogModule', () => {
         // Arrange
         const changelogModule: ChangelogModule = new ChangelogModule({}, new Logger());
         const expected: ChangelogFileData = {
-            lines: changelogDataEmptyUnrelized.lines,
-            unrealised: [],
-            unrealisedLineNumber: 0,
+            lines: changelogDataEmptyUnreleased.lines,
+            unreleased: [],
+            unreleasedLineNumber: 0,
         };
 
         // Act

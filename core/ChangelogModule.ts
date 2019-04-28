@@ -36,7 +36,7 @@ export default class ChangelogModule {
     parse(fullPathToFile: string): ChangelogFileData {
         const md: string = fs.readFileSync(fullPathToFile, 'utf8');
         const rows: string[] = md.split(/\r?\n/g);
-        return { lines: rows, unrealised: [], unrealisedLineNumber: 0 };
+        return { lines: rows, unreleased: [], unreleasedLineNumber: 0 };
     }
 
     add(path: string): ChangelogFileData {
@@ -48,9 +48,9 @@ export default class ChangelogModule {
         return this.files[path];
     }
 
-    isUnrealized(path: string): Boolean {
+    isUnreleased(path: string): Boolean {
         const changelog: ChangelogFileData = this.get(path);
-        return !!(changelog && changelog.unrealised.length);
+        return !!(changelog && changelog.unreleased.length);
     }
 
     read(pathOrChangelog: string | ChangelogFileData): ChangelogFileData {
@@ -58,22 +58,22 @@ export default class ChangelogModule {
             typeof pathOrChangelog === 'string' ? this.add(pathOrChangelog) : pathOrChangelog;
 
         // Разбор changelog
-        let isUnrelised = false;
+        let isUnreleased = false;
         for (const lineNumber in changelog.lines) {
             const line: string = changelog.lines[lineNumber];
-            if (isUnrelised) {
+            if (isUnreleased) {
                 const matches = line.match(/^### ([a-z]*)/i);
                 if (line.match(/^## (.*)/i)) {
-                    isUnrelised = false;
+                    isUnreleased = false;
                 } else if (!matches && line.length) {
                     const desc = line.replace(/^([^1-9\[\]a-zа-яё])*/i, '');
                     if (desc.length) {
-                        changelog.unrealised.push(desc);
+                        changelog.unreleased.push(desc);
                     }
                 }
             } else if (line.toLowerCase().includes('unreleased')) {
-                changelog.unrealisedLineNumber = +lineNumber;
-                isUnrelised = true;
+                changelog.unreleasedLineNumber = +lineNumber;
+                isUnreleased = true;
             }
         }
 
@@ -88,7 +88,7 @@ export default class ChangelogModule {
         }
 
         const headLine: string = `## [${version}] - ${this.getDateString()}`;
-        changelog.lines.splice(changelog.unrealisedLineNumber + 1, 0, '', '---', headLine);
+        changelog.lines.splice(changelog.unreleasedLineNumber + 1, 0, '', '---', headLine);
         const lines: string[] = changelog.lines;
         fs.writeFileSync(`${path}/${this.changelogFileName}`, lines.join(os.EOL), 'utf8');
         return true;
@@ -114,11 +114,11 @@ export default class ChangelogModule {
 
         const changedMark: string = '### Changed';
 
-        let index: number = this.indexOfMarkInUnrelized(this.globalChangelog, changedMark);
+        let index: number = this.indexOfMarkInUnreleased(this.globalChangelog, changedMark);
 
         if (index < 0) {
-            this.globalChangelog.lines.splice(this.globalChangelog.unrealisedLineNumber + 1, 0, '', changedMark);
-            index = this.globalChangelog.unrealisedLineNumber + 2;
+            this.globalChangelog.lines.splice(this.globalChangelog.unreleasedLineNumber + 1, 0, '', changedMark);
+            index = this.globalChangelog.unreleasedLineNumber + 2;
         } else {
             index++;
         }
@@ -128,7 +128,7 @@ export default class ChangelogModule {
             .replace(/%version%/g, component.data.version)
             .replace(/%date%/g, this.getDateString())
             .replace(/%link%/g, this.getLinkByChangelog(path, component.data.version))
-            .replace(/%msg%/g, changelog.unrealised.join(', '));
+            .replace(/%msg%/g, changelog.unreleased.join(', '));
 
         this.globalChangelog.lines.splice(index + 1, 0, line);
         const globalLines: string[] = this.globalChangelog.lines;
@@ -140,8 +140,8 @@ export default class ChangelogModule {
         return `/${path.replace(/^\//, '')}/${this.changelogFileName}#${version.replace(/\./g, '')}-${this.getDateString()}`;
     }
 
-    indexOfMarkInUnrelized(changelog: ChangelogFileData, mark: string): number {
-        for (let i = changelog.unrealisedLineNumber + 1; changelog.lines.length > i; i++) {
+    indexOfMarkInUnreleased(changelog: ChangelogFileData, mark: string): number {
+        for (let i = changelog.unreleasedLineNumber + 1; changelog.lines.length > i; i++) {
             const row: string = changelog.lines[i];
             if (row.match(/^## (.*)/i)) {
                 return -1;

@@ -21,7 +21,7 @@ const logger: Logger = new Logger();
 program
     .version(version)
     .usage('[options] <componentName>')
-    .option('-u, --onlyUnrealised', 'Брать компонеты только при наличии в unrealised из changelog записей', false)
+    .option('-u, --onlyUnreleased', 'Брать компонеты только при наличии в unreleased из changelog записей', false)
     .option('--verbose', 'Вывод подробной информации', false)
     .description(description)
     .action(async () => {
@@ -38,7 +38,7 @@ program
         }
         const settings: Settings = userPackageJson.cvu;
         settings.verbose = program.verbose || settings.verbose || false;
-        settings.onlyUnrealised = program.onlyUnrealised || settings.onlyUnrealised || false;
+        settings.onlyUnreleased = program.onlyUnreleased || settings.onlyUnreleased || false;
         logger.verbose = settings.verbose || false;
 
         const changelogFileName: string = settings.changelogFileName || 'CHANGELOG.md';
@@ -72,9 +72,9 @@ program
             }
         }
 
-        if (settings.onlyUnrealised) {
+        if (settings.onlyUnreleased) {
             questionModule.components = questionModule.components.filter(component =>
-                changelogModule.isUnrealized(component.path)
+                changelogModule.isUnreleased(component.path)
             );
         }
 
@@ -85,8 +85,8 @@ program
         // Опрос пользователя
         const answer: Answers = await questionModule.ask();
         const pathComponent: string = answer.component.path;
-        if (!changelogModule.isUnrealized(pathComponent)) {
-            return logger.error(`Nothing unrealized changes in ${pathComponent}/${changelogModule.changelogFileName}`);
+        if (!changelogModule.isUnreleased(pathComponent)) {
+            return logger.error(`Nothing unreleased changes in ${pathComponent}/${changelogModule.changelogFileName}`);
         }
 
         // Обновление версии в package.json
@@ -108,15 +108,15 @@ program
         }
 
         // Обновление Общего changelog.md
-        logger.log(changelogModule.get(pathComponent).unrealised.join(', '));
+        logger.log(changelogModule.get(pathComponent).unreleased.join(', '));
     })
     .parse(process.argv);
 
 function logMods(settings: Settings, logger: Logger): void {
     logger.info(chalk.bold.yellow('Run with mode verbose'));
 
-    if (settings.onlyUnrealised) {
-        logger.info(chalk.bold.yellow('Run with mode onlyUnrealised'));
+    if (settings.onlyUnreleased) {
+        logger.info(chalk.bold.yellow('Run with mode onlyUnreleased'));
     }
 
     console.log();

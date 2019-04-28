@@ -1,10 +1,10 @@
 import { ChangelogFileData } from '../core/types';
 
 /////////////////////
-// Unreleazed
+// Unreleased
 /////////////////////
 
-export const changelogFileUnrelized: string = `# Changelog\n\r\n## [Unreleased]
+export const changelogFileUnreleased: string = `# Changelog\n\r\n## [Unreleased]
 
 ### Changed
 
@@ -16,7 +16,7 @@ export const changelogFileUnrelized: string = `# Changelog\n\r\n## [Unreleased]
 -   21321213213213213
 
 ## 1.0.0`;
-export const changelogDataUnrelized: ChangelogFileData = {
+export const changelogDataUnreleased: ChangelogFileData = {
     lines: [
         '# Changelog',
         '',
@@ -33,8 +33,8 @@ export const changelogDataUnrelized: ChangelogFileData = {
         '',
         '## 1.0.0',
     ],
-    unrealised: ['[@asdasd] - asdasdasdsadsad1', 'что-то русское', '21321213213213213'],
-    unrealisedLineNumber: 2,
+    unreleased: ['[@asdasd] - asdasdasdsadsad1', 'что-то русское', '21321213213213213'],
+    unreleasedLineNumber: 2,
 };
 
 export const changelogLinesUppedVersion: string[] = [
@@ -58,30 +58,30 @@ export const changelogLinesUppedVersion: string[] = [
 ];
 
 /////////////////////
-// Empty Unreleazed
+// Empty Unreleased
 /////////////////////
 
-export const changelogFileEmptyUnrelized: string = `# Changelog\n\r\n## [Unreleased]
+export const changelogFileEmptyUnreleased: string = `# Changelog\n\r\n## [Unreleased]
 
 ### Changed
 
 ## 1.0.0`;
-export const changelogDataEmptyUnrelized: ChangelogFileData = {
+export const changelogDataEmptyUnreleased: ChangelogFileData = {
     lines: ['# Changelog', '', '## [Unreleased]', '', '### Changed', '', '## 1.0.0'],
-    unrealised: [],
-    unrealisedLineNumber: 2,
+    unreleased: [],
+    unreleasedLineNumber: 2,
 };
 
 /////////////////////
-// No Unreleazed
+// No Unreleased
 /////////////////////
 
-export const changelogFileNoUnrelized: string = `# Changelog\n\r
+export const changelogFileNoUnreleased: string = `# Changelog\n\r
 ### Changed
 
 ## 1.0.0`;
-export const changelogDataNoUnrelized: ChangelogFileData = {
+export const changelogDataNoUnreleased: ChangelogFileData = {
     lines: ['# Changelog', '', '### Changed', '', '## 1.0.0'],
-    unrealised: [],
-    unrealisedLineNumber: 0,
+    unreleased: [],
+    unreleasedLineNumber: 0,
 };
