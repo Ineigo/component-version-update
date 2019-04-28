@@ -1,5 +1,5 @@
 import ChangelogModule from '../core/ChangelogModule';
-import { ChangelogFileData, ChangelogFiles } from '../core/types';
+import { ChangelogFileData, ChangelogFiles, ComponentData } from '../core/types';
 import fs from 'fs';
 import Logger from '../core/Logger';
 import {
@@ -30,7 +30,7 @@ class DateMock extends Date {
         super();
         return DATE_TO_USE;
     }
-};
+}
 (global.Date as any) = DateMock;
 
 jest.mock('fs', () => new (require('metro-memory-fs'))());
@@ -45,10 +45,86 @@ describe('ChangelogModule', () => {
         fs.writeFileSync('/folder1/temp1/CHANGELOG_UNRELEASED.md', changelogFileUnrelized, 'utf8');
         fs.writeFileSync(
             '/CHANGELOG.md',
-            `asd
-        asd`,
+            `# Changelog
+
+## [Unreleased]
+
+### Changed
+
+- [comp1:1.1.1] - 2016-07-10`,
             'utf8'
         );
+    });
+
+    describe('writeGlobalChangelog', () => {
+        const compData: ComponentData = {
+            path: '/folder1/temp1',
+            data: {
+                description: 'asd',
+                version: '1.1.2',
+                name: 'comp1',
+            },
+        };
+        
+        it('no global changelog', () => {
+            // Arrange
+            const path: string = '/folder1/temp1';
+            const changelogModule: ChangelogModule = new ChangelogModule(
+                { changelogFileName: 'CHANGELOG_UNRELEASED.md' },
+                new Logger()
+            );
+
+            // Act
+            const result: Boolean = changelogModule.writeGlobalChangelog(path, compData);
+
+            // Assert
+            expect(result).toBeFalsy();
+        });
+
+        it('no changelog', () => {
+            // Arrange
+            const path: string = '/folder1/temp1';
+            const changelogModule: ChangelogModule = new ChangelogModule(
+                { changelogFileName: 'CHANGELOG_UNRELEASED.md', pathToGlobalChangelog: '/CHANGELOG.md' },
+                new Logger()
+            );
+
+            // Act
+            const result: Boolean = changelogModule.writeGlobalChangelog(path, compData);
+
+            // Assert
+            expect(result).toBeFalsy();
+        });
+
+        it('isset global changelog', () => {
+            // Arrange
+            const path: string = '/folder1/temp1';
+            const changelogModule: ChangelogModule = new ChangelogModule(
+                { changelogFileName: 'CHANGELOG_UNRELEASED.md', pathToGlobalChangelog: '/CHANGELOG.md', globalChangelogFormat: '- [%name%:%version%] - %date%' },
+                new Logger()
+            );
+            const data: ChangelogFileData = changelogModule.read(path);
+
+            // Act
+            const result: Boolean = changelogModule.writeGlobalChangelog(path, compData);
+
+            // Assert
+            expect(result).toBeTruthy();
+            expect(changelogModule.globalChangelog).toEqual({
+                lines: [
+                    '# Changelog',
+                    '',
+                    '## [Unreleased]',
+                    '',
+                    '### Changed',
+                    '',
+                    '- [comp1:1.1.2] - 2017-06-13',
+                    '- [comp1:1.1.1] - 2016-07-10',
+                ],
+                unrealised: ['[comp1:1.1.1] - 2016-07-10'],
+                unrealisedLineNumber: 2,
+            });
+        });
     });
 
     describe('upVersion', () => {

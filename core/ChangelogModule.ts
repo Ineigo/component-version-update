@@ -101,7 +101,7 @@ export default class ChangelogModule {
         return `${date.getFullYear()}-${month}-${day}`;
     }
 
-    writeGlobalChangelog(path: string, component: ComponentData) {
+    writeGlobalChangelog(path: string, component: ComponentData): Boolean {
         if (!this.globalChangelog) {
             return false;
         }
@@ -126,13 +126,14 @@ export default class ChangelogModule {
         const line: string = this.globalChangelogFormat
             .replace(/%name%/g, component.data.name)
             .replace(/%version%/g, component.data.version)
-            .replace(/%data%/g, this.getDateString())
+            .replace(/%date%/g, this.getDateString())
             .replace(/%link%/g, `/${path}/${this.changelogFileName}`)
             .replace(/%msg%/g, changelog.unrealised.join(', '));
             
         this.globalChangelog.lines.splice(index + 1, 0, line);
         const globalLines: string[] = this.globalChangelog.lines;
         fs.writeFileSync(`${this.pathToGlobalChangelog}`, globalLines.join(os.EOL), 'utf8');
+        return true;
     }
 
     indexOfMarkInUnrelized(changelog: ChangelogFileData, mark: string): number {
