@@ -13,6 +13,7 @@ import { Answers } from 'inquirer';
 import shelljs from 'shelljs';
 import ChangelogModule from './core/ChangelogModule.js';
 import Logger from './core/Logger.js';
+import ComponentsModule from './core/ComponentsModule.js';
 
 const version: string = (<any>pj).version;
 const description: string = (<any>pj).description;
@@ -52,7 +53,8 @@ program
         const paths: string[] = settings.pathsToComponents;
 
         // Создание вопросника
-        const questionModule: QuestionModule = new QuestionModule(paths, logger);
+        const componentsModule: ComponentsModule = new ComponentsModule(paths, logger);
+        const questionModule: QuestionModule = new QuestionModule();
         const changelogModule: ChangelogModule = new ChangelogModule(
             {
                 changelogFileName,
@@ -62,7 +64,7 @@ program
             logger
         );
 
-        for (const component of questionModule.components) {
+        for (const component of componentsModule.components) {
             if (changelogModule.isset(component.path)) {
                 changelogModule.read(component.path);
             } else {
@@ -71,19 +73,19 @@ program
                 );
             }
         }
-
+        let components = componentsModule.components;
         if (settings.onlyUnreleased) {
-            questionModule.components = questionModule.components.filter(component =>
+            components = componentsModule.components.filter(component =>
                 changelogModule.isUnreleased(component.path)
             );
         }
 
-        if (!questionModule.components.length) {
+        if (!components.length) {
             return logger.error('No components by publish');
         }
 
         // Опрос пользователя
-        const answer: Answers = await questionModule.ask();
+        const answer: Answers = await questionModule.ask(components);
         const pathComponent: string = answer.component.path;
         if (!changelogModule.isUnreleased(pathComponent)) {
             return logger.error(`Nothing unreleased changes in ${pathComponent}/${changelogModule.changelogFileName}`);

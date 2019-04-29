@@ -1,49 +1,12 @@
-import fs from 'fs';
-import path from 'path';
 import inquirer, { Question, Answers } from 'inquirer';
 import chalk from 'chalk';
-import { ComponentData, PJSON } from './types';
-import Logger from './Logger';
+import { ComponentData } from './types';
 
 inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 
 export default class QuestionModule {
-    components: ComponentData[];
-    constructor(paths: string[], logger: Logger) {
-        this.components = paths.reduce((components: ComponentData[], componentPath: string) => {
-            const folders: string[] = fs.readdirSync(componentPath);
-
-            const componentsInFolder: ComponentData[] = folders
-                .filter(folder =>
-                    fs.existsSync((componentPath === '/' ? '/' : componentPath + '/') + folder + '/package.json')
-                )
-                .map(folder => {
-                    const location = (componentPath === '/' ? '/' : componentPath + '/') + folder;
-                    const data: PJSON = JSON.parse(fs.readFileSync(location + '/package.json', 'utf8'));
-                    return {
-                        path: location,
-                        data,
-                    };
-                });
-
-            if (!componentsInFolder.length) {
-                logger.warn(`Not found components in ${path.resolve(componentPath)}`);
-                return components;
-            }
-            logger.info(
-                `Found ` +
-                    chalk.bold(`${componentsInFolder.length} `) +
-                    chalk.bold(`(${componentPath})`) +
-                    ` components in`,
-                path.resolve(componentPath)
-            );
-            return components.concat(componentsInFolder);
-        }, []);
-        logger.info('Total: ' + chalk.bold.white(`${this.components.length}`) + ' found components');
-    }
-
-    createQuestions(): Question[] {
-        const choices = this.components.map(component => ({
+    createQuestions(components: ComponentData[]): Question[] {
+        const choices = components.map(component => ({
             name: `${component.data.name}@${component.data.version} - ${chalk.bold.grey(component.data.description)}`,
             value: component,
         }));
@@ -75,8 +38,8 @@ export default class QuestionModule {
         ];
     }
 
-    ask(): Promise<Answers> {
-        const questions: Question[] = this.createQuestions();
+    ask(components: ComponentData[]): Promise<Answers> {
+        const questions: Question[] = this.createQuestions(components);
         return inquirer.prompt(questions);
     }
 }

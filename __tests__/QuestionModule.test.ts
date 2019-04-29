@@ -16,10 +16,13 @@ jest.mock('chalk', () => {
 jest.mock('fs', () => new (require('metro-memory-fs'))());
 
 describe('QuestionModule', () => {
-    const paths: string[] = ['/folder1', '/folder2'];
     const components: PJSON[] = [
         { name: '@comp/temp1', version: '1.1.1', description: 'sadsadad' },
         { name: '@comp/temp2', version: '2.3.8', description: '00000000' },
+    ];
+    const componentsData: ComponentData[] = [
+        { path: '/folder1/temp1', data: components[0] },
+        { path: '/folder1/temp2', data: components[1] }
     ];
     
 
@@ -32,33 +35,19 @@ describe('QuestionModule', () => {
         fs.mkdirSync('/folder2/temp2');
         fs.writeFileSync('/folder2/temp2/package.json', JSON.stringify(components[1]));
     });
-
-    it('Check grabbing components', async () => {
-        // Arrange
-        const expectedComponent: ComponentData[] = [
-            { path: '/folder1/temp1', data: components[0] },
-            { path: '/folder2/temp2', data: components[1] },
-        ];
-
-        // Act
-        const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
-
-        // Assert
-        expect(questionModule.components).toEqual(expectedComponent);
-    });
-
+    
     it('Check generate list by render', async () => {
         // Arrange
-        const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
-        const questions: any = questionModule.createQuestions();
+        const questionModule: QuestionModule = new QuestionModule();
+        const questions: any = questionModule.createQuestions(componentsData);
         const expectedComponent: any = [
             {
                 name: `${components[0].name}@${components[0].version} - ${components[0].description}`,
-                value: questionModule.components[0],
+                value: componentsData[0],
             },
             {
                 name: `${components[1].name}@${components[1].version} - ${components[1].description}`,
-                value: questionModule.components[1],
+                value: componentsData[1],
             },
         ];
 
@@ -71,12 +60,12 @@ describe('QuestionModule', () => {
 
     it('Check filter list by render', async () => {
         // Arrange
-        const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
-        const questions: any = questionModule.createQuestions();
+        const questionModule: QuestionModule = new QuestionModule();
+        const questions: any = questionModule.createQuestions(componentsData);
         const expectedComponent: any = [
             {
                 name: `${components[0].name}@${components[0].version} - ${components[0].description}`,
-                value: questionModule.components[0],
+                value: componentsData[0],
             },
         ];
 
@@ -89,12 +78,12 @@ describe('QuestionModule', () => {
 
     it('Check generate version list by render', () => {
         // Arrange
-        const questionModule: QuestionModule = new QuestionModule(paths, new Logger());
-        const questions: any = questionModule.createQuestions();
+        const questionModule: QuestionModule = new QuestionModule();
+        const questions: any = questionModule.createQuestions(componentsData);
         const expectedVersion: string[] = ['2.3.9', '2.4.0', '3.0.0'];
 
         // Act
-        const result = questions[1].choices({ component: questionModule.components[1] });
+        const result = questions[1].choices({ component: componentsData[1] });
 
         // Assert
         expect(result).toEqual(expectedVersion);
