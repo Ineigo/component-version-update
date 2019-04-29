@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs, { Stats } from 'fs';
 import chalk from 'chalk';
 import path from 'path';
 import Logger from './Logger';
@@ -38,10 +38,11 @@ export default class ComponentsModule {
         for (const folder of folders) {
             const location = `${pathToComponents}/${folder}`;
 
+            const stats: Stats = fs.lstatSync(location);
             if (this.isset(location)) {
                 const component: ComponentData = this.read(location);
                 componentsInFolder.push(component);
-            } else {
+            } else if (stats.isDirectory()){
                 this.logger.warn('Not found package.json in', path.resolve(location));
             }
         }

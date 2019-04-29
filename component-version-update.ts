@@ -14,6 +14,7 @@ import shelljs from 'shelljs';
 import ChangelogModule from './core/ChangelogModule.js';
 import Logger from './core/Logger.js';
 import ComponentsModule from './core/ComponentsModule.js';
+import SettingsModule from './core/SettingsModule.js';
 
 const version: string = (<any>pj).version;
 const description: string = (<any>pj).description;
@@ -23,37 +24,27 @@ program
     .version(version)
     .usage('[options] <componentName>')
     .option('-u, --onlyUnreleased', 'Брать компонеты только при наличии в unreleased из changelog записей', false)
+    .option('-s, --settings [path]', 'Путь до настроек package.json', './package.json')
     .option('--verbose', 'Вывод подробной информации', false)
     .description(description)
     .action(async () => {
-        if (!fs.existsSync('./package.json')) {
-            return logger.error('Missing package.json');
-        }
-
+        logger.verbose = program.verbose || false;
         init();
 
         // Получение конфигурации
-        const userPackageJson = require(path.resolve('./package.json'));
-        if (!userPackageJson.cvu) {
-            return logger.error('Missing cvu key in package.json');
-        }
-        const settings: Settings = userPackageJson.cvu;
-        settings.verbose = program.verbose || settings.verbose || false;
-        settings.onlyUnreleased = program.onlyUnreleased || settings.onlyUnreleased || false;
-        logger.verbose = settings.verbose || false;
-
-        const changelogFileName: string = settings.changelogFileName || 'CHANGELOG.md';
-
-        if (!settings.pathsToComponents || !settings.pathsToComponents.length) {
-            return logger.error("pathsToComponents c'not empty");
+        let settingsModule: SettingsModule;
+        try {
+            logger.info(`Path to settings: ${program.settings}`);
+            settingsModule = new SettingsModule(program.settings || './package.json', logger);
+        } catch (e) {
+            return 1;
         }
 
-        logMods(settings, logger);
-
-        const paths: string[] = settings.pathsToComponents;
+        const settings: Settings = settingsModule.settings;
+        const changelogFileName: string = settings.changelogFileName;
 
         // Создание вопросника
-        const componentsModule: ComponentsModule = new ComponentsModule(paths, logger);
+        const componentsModule: ComponentsModule = new ComponentsModule(settings.pathsToComponents, logger);
         const questionModule: QuestionModule = new QuestionModule();
         const changelogModule: ChangelogModule = new ChangelogModule(
             {
@@ -75,9 +66,7 @@ program
         }
         let components = componentsModule.components;
         if (settings.onlyUnreleased) {
-            components = componentsModule.components.filter(component =>
-                changelogModule.isUnreleased(component.path)
-            );
+            components = componentsModule.components.filter(component => changelogModule.isUnreleased(component.path));
         }
 
         if (!components.length) {
@@ -97,6 +86,8 @@ program
         // Обновление версии в component/Changelog.md
         if (changelogModule.upVersion(pathComponent, answer.version)) {
             answer.component.data.version = answer.version;
+
+            // Обновление Общего changelog.md
             changelogModule.writeGlobalChangelog(pathComponent, answer.component);
             if (settings.commitMessage) {
                 const message: string = settings.commitMessage
@@ -109,20 +100,9 @@ program
             }
         }
 
-        // Обновление Общего changelog.md
-        logger.log(changelogModule.get(pathComponent).unreleased.join(', '));
+        logger.log(changelogModule.get(pathComponent).unreleased.join('\n'));
     })
     .parse(process.argv);
-
-function logMods(settings: Settings, logger: Logger): void {
-    logger.info(chalk.bold.yellow('Run with mode verbose'));
-
-    if (settings.onlyUnreleased) {
-        logger.info(chalk.bold.yellow('Run with mode onlyUnreleased'));
-    }
-
-    console.log();
-}
 
 function init(): void {
     console.log(chalk.bold.blue('component-version-updater', '- v' + version));

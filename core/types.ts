@@ -11,7 +11,7 @@ export interface ComponentData {
 
 export interface Settings {
     pathsToComponents: string[]
-    changelogFileName?: string;
+    changelogFileName: string;
     onlyUnreleased?: Boolean;
     verbose?: Boolean;
     pathToGlobalChangelog?: string;
