@@ -36,7 +36,7 @@ export default class ComponentsModule {
         const componentsInFolder: ComponentData[] = [];
 
         for (const folder of folders) {
-            const location = `${pathToComponents}/${folder}`;
+            const location = `${pathToComponents.replace(/\/$/, '')}/${folder}`;
 
             const stats: Stats = fs.lstatSync(location);
             if (this.isset(location)) {
