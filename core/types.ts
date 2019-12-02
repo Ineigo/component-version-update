@@ -17,6 +17,7 @@ export interface Settings {
     pathToGlobalChangelog?: string;
     globalChangelogFormat?: string;
     commitMessage?: string;
+    packageName?: string;
 }
 
 export interface ChangelogFileData {

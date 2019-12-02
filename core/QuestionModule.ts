@@ -5,7 +5,7 @@ import { ComponentData } from './types';
 inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 
 export default class QuestionModule {
-    createQuestions(components: ComponentData[]): Question[] {
+    createQuestions(components: ComponentData[], selected?: ComponentData): Question[] {
         const choices = components.map(component => ({
             name: `${component.data.name}@${component.data.version} - ${chalk.bold.grey(component.data.description)}`,
             value: component,
@@ -16,6 +16,8 @@ export default class QuestionModule {
                 name: 'component',
                 type: 'autocomplete',
                 message: 'Название компонента?',
+                default: components[0],
+                when: !selected,
                 source: (answer: Answers, input: string) => {
                     return Promise.resolve(input ? choices.filter(c => c.name.includes(input)) : choices);
                 },
@@ -25,7 +27,7 @@ export default class QuestionModule {
                 type: 'list',
                 message: 'Новая версия?',
                 choices: (answer: Answers) => {
-                    const version = answer.component.data.version.split('.');
+                    const version = (selected || answer.component).data.version.split('.');
                     return version
                         .map((n: string, i: number) => {
                             const newVer = Array.from(version);
@@ -38,8 +40,8 @@ export default class QuestionModule {
         ];
     }
 
-    ask(components: ComponentData[]): Promise<Answers> {
-        const questions: Question[] = this.createQuestions(components);
+    ask(components: ComponentData[], selected?: ComponentData): Promise<Answers> {
+        const questions: Question[] = this.createQuestions(components, selected);
         return inquirer.prompt(questions);
     }
 }

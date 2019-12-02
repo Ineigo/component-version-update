@@ -11,6 +11,10 @@ export default class Logger {
         console.log(chalk.grey(msg));
     }
 
+    message(msg: string, after?: string) {
+        console.log(chalk.bold.white(msg), chalk.bold.blue(after || ''));
+    }
+
     info(msg: string, after: string = ''): void {
         if (this.verbose) {
             console.log(chalk.bold.blue(`[Info]`), msg, chalk.grey(after));

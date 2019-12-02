@@ -25,6 +25,7 @@ program
     .usage('[options] <componentName>')
     .option('-u, --onlyUnreleased', 'Брать компонеты только при наличии в unreleased из changelog записей', false)
     .option('-s, --settings [path]', 'Путь до настроек package.json', './package.json')
+    .option('-p, --package [package]', 'Название пакета для обновления')
     .option('--verbose', 'Вывод подробной информации', false)
     .description(description)
     .action(async () => {
@@ -73,26 +74,35 @@ program
             return logger.error('No components by publish');
         }
 
+        const selected = components.find(item => item.data.name === settings.packageName);
+        if (!selected && settings.packageName) {
+            return logger.error('Not found component', settings.packageName);
+        }
+
+        if (selected) {
+            logger.message('Выбран компонет:', selected.data.name + '\n\n');
+        }
+
         // Опрос пользователя
-        const answer: Answers = await questionModule.ask(components);
-        const pathComponent: string = answer.component.path;
+        const answer: Answers = await questionModule.ask(components, selected);
+        const pickedComponent = answer.component || selected;
+        const pathComponent: string = pickedComponent.path;
         if (!changelogModule.isUnreleased(pathComponent)) {
             return logger.error(`Nothing unreleased changes in ${pathComponent}/${changelogModule.changelogFileName}`);
         }
 
         // Обновление версии в package.json
-        shelljs.exec(`npm version ${answer.version} --prefix ${pathComponent}`);
-
+        shelljs.exec(`npm version ${answer.version} --prefix ${pathComponent} --no-git-tag-version`);
         // Обновление версии в component/Changelog.md
         if (changelogModule.upVersion(pathComponent, answer.version)) {
-            answer.component.data.version = answer.version;
-
+            pickedComponent.data.version = answer.version;
+            
             // Обновление Общего changelog.md
-            changelogModule.writeGlobalChangelog(pathComponent, answer.component);
+            changelogModule.writeGlobalChangelog(pathComponent, pickedComponent);
             if (settings.commitMessage) {
                 const message: string = settings.commitMessage
-                    .replace(/%name%/g, answer.component.data.name)
-                    .replace(/%version%/g, answer.component.data.version);
+                    .replace(/%name%/g, pickedComponent.data.name)
+                    .replace(/%version%/g, pickedComponent.data.version);
                 shelljs.exec(
                     `git add ${pathComponent} ${settings.pathToGlobalChangelog} && git commit -m "${message}"`
                 );
@@ -100,15 +110,16 @@ program
             }
         }
 
+        logger.message('\n\nСписок изменений для версии', answer.version);
         logger.log(changelogModule.get(pathComponent).unreleased.join('\n'));
     })
     .parse(process.argv);
 
 function init(): void {
-    console.log(chalk.bold.blue('component-version-updater', '- v' + version));
+    console.log(chalk.bold.blue('component-version-update', '- v' + version));
     console.log(
         chalk.cyan(
-            figlet.textSync('Updater', {
+            figlet.textSync('CVUpdater', {
                 font: 'Stop',
                 horizontalLayout: 'fitted',
                 verticalLayout: 'default',
